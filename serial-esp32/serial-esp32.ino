@@ -3,11 +3,11 @@
 #include <HTTPClient.h>
 
 // Credenciais da conexão Wifi
-const char* ssid = "MirellaLarissa_24Ghz";
-const char* password = "morumtri2020";
+const char* ssid = "Conforto-Termico";
+const char* password = "master1466";
 
 // Endereço da interface com o banco de dados
-const char* serverName = "http://192.168.50.58/confterm-termopar/post-sensores.php";
+const char* serverName = "http://10.0.0.50/confterm-termopar/post-sensores.php";
 
 // Chave para acesso à interface com o banco de dados (API)
 String apiKeyValue = "tPmAT5Ab3j7F9";
@@ -49,11 +49,11 @@ void setup() {
 
   // Envia uma mensagem de teste para o Arduino Mega
   delay(1000);
-  Serial2.println("Olá, Mega.");
+  // Serial2.println("Olá, Mega.");
 }
 
 void loop() {
-  if (Serial2.available() > 0) {
+  if (Serial2.available()) {
     
     // Recebe os dados da serial, salva em buf e retorna o seu tamanho
     int rlen = Serial2.readBytes(buf, BUFFER_SIZE);
@@ -61,6 +61,8 @@ void loop() {
     // Dado recebido é armazenado em buffer
     s = String(buf);
 
+    Serial2.println(s);
+    
     if (s == "99") {
       paridade = s;
     }
@@ -80,7 +82,7 @@ void loop() {
         dados[count] = s;
         count++;
 
-        if (count >= 2) {
+        if (count >= 8) {
           Serial.println("Enviando leituras para o banco de dados...");
           conexao();
           count = 0;
@@ -90,12 +92,15 @@ void loop() {
     }
 
     // int y22 = Serial2.read();
+    // delay(300);
+    // Serial.println(y22);
     // Serial.write(y22);
-    // conexao(y22);
     // Serial2.write(Serial.read());
   }
   if (Serial.available() > 0) {
     int y32 = Serial.read();
+    //delay(300);
+    Serial.println(y32);
     Serial2.write(y32);
     // Serial2.write(Serial.read());
   }
@@ -116,7 +121,11 @@ void conexao() {
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
     // Prepara os parâmetros para a requisção do método POST
-    String httpRequestData = "api_key=" + apiKeyValue + "&s1=" + dados[0] + "&s2=" + dados[1] + "";
+    String httpRequestData = "api_key=" + apiKeyValue + "&tk1=" + dados[0] + 
+    "&tk2=" + dados[1] + "&tk3=" + dados[2] + "&tk4=" + dados[3] + 
+    "&tk5=" + dados[4] + "&media=" + dados[5] + "&t_tdb=" + dados[6] + 
+    "&h_tdb=" + dados[7] + "&kimo=" + dados[8] + "";
+
     Serial.print("Dados: ");
     Serial.println(httpRequestData);
 
