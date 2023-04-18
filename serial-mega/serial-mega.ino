@@ -86,11 +86,9 @@ void setup() {
   // Inicializa a porta serial 3
   Serial3.begin(9600);
 
-  Serial.println("==================================================");
-  Serial.println("       Medição Temperatura, Vento e Umidade       ");
-  Serial.println("==================================================");
-
-  delay(500);
+  Serial.println("################################################");
+  Serial.println("    Medição de Temperatura, Vento e Umidade     ");
+  Serial.println("################################################");
 
   // Inicializa os sensores DHT
   dht1.begin();
@@ -118,13 +116,17 @@ void loop() {
     // turn LED on:
     Serial.println("Chave = OFF");
     lcd.setCursor(0, 1);
-    lcd.print("  Chave = OFF   ");
+    lcd.print("Chave = OFF");
     delay(100);
 
   } else {
 
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Temp Vento Umid");  // escreve mensagem
     lcd.setCursor(0, 1);
-    lcd.print("Inciando leituras...");
+    lcd.print("Exec. leituras");
+
     publicar("99"); // envia o código de paridade
     delay(1500);
     ler_termopares();
@@ -134,7 +136,14 @@ void loop() {
     // ler_TGN(); // temp globo negro ainda falta montar 14-04-23
     // delay(1500);
     ler_KIMO();
-    delay(1500);
+    
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Temp Vento Umid");  // escreve mensagem
+    lcd.setCursor(0, 1);
+    lcd.print("Leituras OK");
+    
+    delay(5000);
   }
   
   delay(10000);
@@ -158,8 +167,9 @@ void publicar(String dados) {
 
 void ler_termopares() {
 
-  Serial.println("########################################################");
-  Serial.println("                 Leitura dos Termopares                 ");
+  Serial.println("------------------------------------------------");
+  Serial.println("             Leitura dos Termopares             ");
+  Serial.println("------------------------------------------------");
 
   // Termopar 1
   Serial.print("S1 (C) = ");
@@ -167,7 +177,7 @@ void ler_termopares() {
   delay(300);
   publicar(String(tk1));
   Serial.println(tk1);
-  delay(1000);
+  delay(1200);
 
   // Termopar 2
   Serial.print("S2 (C) = ");
@@ -175,7 +185,7 @@ void ler_termopares() {
   delay(300);
   publicar(String(tk2));
   Serial.println(tk2);
-  delay(1000);
+  delay(1200);
 
   // Sensor 3
   Serial.print("S3 (C) = ");
@@ -183,7 +193,7 @@ void ler_termopares() {
   delay(300);
   publicar(String(tk3));
   Serial.println(tk3);
-  delay(1000);
+  delay(1200);
 
   // Sensor 4
   Serial.print("S4 (C) = ");
@@ -191,7 +201,7 @@ void ler_termopares() {
   delay(300);
   publicar(String(tk4));
   Serial.println(tk4);
-  delay(1000);
+  delay(1200);
 
   // Sensor 5
   Serial.print("S5 (C) = ");
@@ -199,29 +209,28 @@ void ler_termopares() {
   delay(300);
   publicar(String(tk5));
   Serial.println(tk5);
-  delay(1000);
+  delay(1200);
 
   // Calcula a média
   Serial.print("Temp. Média Termopar = ");
-  temp_media_TK = (tk1 + tk2 + tk3 + tk4 + tk5) / 5;
+  float temp_media_TK = (tk1 + tk2 + tk3 + tk4 + tk5) / 5;
   publicar(String(temp_media_TK));
   Serial.println(temp_media_TK);
 
-  Serial.println("########################################################");
+  Serial.println("\t");
 }
 
 void ler_TBS() {
 
-  // TDB - DHT1
-  Serial.println("########################################################");
-
-  float t1 = 0;
-  float h1 = 0;
+  // TBS - DHT1
+  Serial.println("------------------------------------------------");
+  Serial.println("      Leitura do Sensor DHT22: Bulbo Seco       ");
+  Serial.println("------------------------------------------------");
 
   // DHT22 sampling rate is 0.5HZ.
   delay(2000);
-  t1 = dht1.readTemperature();
-  h1 = dht1.readHumidity();
+  float t1 = dht1.readTemperature();
+  float h1 = dht1.readHumidity();
 
   // Verifica se os dados dos sensores são válidos
   if (isnan(t1) || isnan(h1)) {
@@ -232,36 +241,35 @@ void ler_TBS() {
     publicar(String(t1));
     delay(1500);
     publicar(String(h1));
+    delay(1500);
 
   } else {
 
-    Serial.println("Leitura do Sensor DHT22 : bulbo seco ");
     Serial.print("TBS (C) = ");
     Serial.println(t1, 1);
     Serial.print("Umidade TBS (%) = ");
-    Serial.print(h1, 1);
-    Serial.println("########################################################");
-    Serial.println("\t");
-    publicar(t1);
+    Serial.println(h1, 1);
+    publicar(String(t1));
     delay(1500);
-    publicar(h1);
-    delay(2000);
+    publicar(String(h1));
+    delay(1500);
   }
+
+  Serial.println("\t");
 }
 
 void ler_TGN() {
 
   // TGN - DHT2
-  Serial.println("########################################################");
-
-  float t2 = 0;
-  float h2 = 0;
+  Serial.println("------------------------------------------------");
+  Serial.println("      Leitura do Sensor DHT22: Globo Negro      ");
+  Serial.println("------------------------------------------------");
 
   // DHT22 sampling rate is 0.5HZ.
   delay(2000);
 
-  t2 = dht2.readTemperature();
-  h2 = dht2.readHumidity();
+  float t2 = dht2.readTemperature();
+  float h2 = dht2.readHumidity();
 
   // Verifica se os dados dos sensores são válidos
   if (isnan(t2) || isnan(h2)) {
@@ -269,34 +277,34 @@ void ler_TGN() {
     Serial.println("Erro de leitura do sensor TGN");
     t2 = 0;  // Envia o valor zero para t2
     h2 = 0;  // Envia o valor zero para h2
-    publicar(t2);
+    publicar(String(t2));
     delay(1500);
-    publicar(h2);
+    publicar(String(h2));
+    delay(1500);
 
   } else {
 
-    Serial.println("Leitura do Sensor DHT22 : globo negro");
     Serial.print("TGN (C) = ");
     Serial.println(t2, 1);
     Serial.print("Umidade TGN (%) = ");
     Serial.print(h2, 1);
-    Serial.println("########################################################");
-    Serial.println("\t");
-    publicar(t2);
+    publicar(String(t2));
     delay(1500);
-    publicar(h2);
-    delay(2000);
+    publicar(String(h2));
+    delay(1500);
   }
+
+  Serial.println("\t");
 }
 
 void ler_KIMO() {
 
   // Sensor de vento KIMO
-  Serial.println("########################################################");
+  Serial.println("------------------------------------------------");
+  Serial.println("            Leitura Anemômetro KIMO             ");
+  Serial.println("------------------------------------------------");
 
   // Leitura do KIMO : 1V = 1m/s
-
-  Serial.println("                  Leitura anemômetro KIMO.              ");
 
   for (int i = 0; i <= 99; i++) {
 
@@ -311,11 +319,11 @@ void ler_KIMO() {
 
   Serial.print("KIMO (1V = 1m/s) (m/s) = ");
   Serial.println(KIMO);
-  Serial.println(" ");
-  Serial.println("########################################################");
-  publicar(KIMO);
+  publicar(String(KIMO));
 
   valor_atual = 0;
+
+  Serial.println("\t");
 }
 
 // ***** Temperatura do Wind Sensor Modern Device *****
@@ -413,6 +421,3 @@ void temp_wind_WS() {
    // lcd.setCursor(13, 1); 
    // lcd.print(" C");
 }
-
-
-

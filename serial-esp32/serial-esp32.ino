@@ -16,7 +16,7 @@ const int BUFFER_SIZE = 10;
 char buf[BUFFER_SIZE];
 int count = 0;
 String paridade;
-String dados[2];
+String dados[9];
 String s;
 
 void setup() {
@@ -82,7 +82,7 @@ void loop() {
         dados[count] = s;
         count++;
 
-        if (count >= 8) {
+        if (count >= 9) {
           Serial.println("Enviando leituras para o banco de dados...");
           conexao();
           count = 0;
