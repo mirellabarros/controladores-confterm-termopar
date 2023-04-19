@@ -80,6 +80,8 @@ int buttonState = 0;  // variable for reading the pushbutton status
 void setup() {
 
   pinMode(buttonPin, INPUT_PULLUP);
+  pinMode(DHTPIN1, INPUT_PULLUP);
+  pinMode(DHTPIN2, INPUT_PULLUP);
 
   // Inicializa a porta serial 0
   Serial.begin(9600);
