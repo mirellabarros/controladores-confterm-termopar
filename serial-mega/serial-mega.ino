@@ -117,6 +117,10 @@ void loop() {
     
     // turn LED on:
     Serial.println("Chave = OFF");
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Proj Conf Term");
     lcd.setCursor(0, 1);
     lcd.print("Chave = OFF");
     delay(100);
@@ -131,21 +135,41 @@ void loop() {
 
     publicar("99"); // envia o código de paridade
     delay(1500);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Exec. leituras");
+    lcd.setCursor(0, 1);
+    lcd.print("Termopares");
+
     ler_termopares();
     delay(1500);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Exec. leituras");
+    lcd.setCursor(0, 1);
+    lcd.print("Sensor TBS");
+
     ler_TBS();
     delay(1500);
     // ler_TGN(); // temp globo negro ainda falta montar 14-04-23
     // delay(1500);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Exec. leituras");
+    lcd.setCursor(0, 1);
+    lcd.print("Sensor Kimo");
+
     ler_KIMO();
+    delay(1500);
     
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Temp Vento Umid");  // escreve mensagem
-    lcd.setCursor(0, 1);
     lcd.print("Leituras OK");
     
-    delay(5000);
+    delay(10000);
   }
   
   delay(10000);
@@ -155,10 +179,9 @@ void loop() {
     Serial.write(x22);
     //Serial.write(Serial3.read());
   }
-  if (Serial.available()) {
+  if (Serial.available() > 0) {
     int x32 = Serial.read();
     Serial3.write(x32);
-    Serial.println(x32);
     // Serial3.write(Serial.read());
   }
 }
