@@ -16,21 +16,21 @@ const int BUFFER_SIZE = 10;
 char buf[BUFFER_SIZE];
 int count = 0;
 String paridade;
-String dados[9];
+String dados[10];
 String s;
 
 void setup() {
 
-  Serial.println("==================================================");
-  Serial.println("Iniciando...");
-  Serial.println("==================================================");
-
-  delay(500);
-
+  delay(2000);
+  
   // Inicializa a porta serial 0
   Serial.begin(9600);
   // Inicializa a porta serial 2
   Serial2.begin(9600);
+
+  Serial.println("==================================================");
+  Serial.println("Iniciando...");
+  Serial.println("==================================================");
 
   // Inicializa a conexão Wifi
   WiFi.begin(ssid, password);
@@ -82,7 +82,7 @@ void loop() {
         dados[count] = s;
         count++;
 
-        if (count >= 9) {
+        if (count >= 10) {
           Serial.println("Enviando leituras para o banco de dados...");
           conexao();
           count = 0;
@@ -124,7 +124,7 @@ void conexao() {
     String httpRequestData = "api_key=" + apiKeyValue + "&tk1=" + dados[0] + 
     "&tk2=" + dados[1] + "&tk3=" + dados[2] + "&tk4=" + dados[3] + 
     "&tk5=" + dados[4] + "&media=" + dados[5] + "&t_tdb=" + dados[6] + 
-    "&h_tdb=" + dados[7] + "&kimo=" + dados[8] + "";
+    "&h_tdb=" + dados[7] + "&t_tgn=" + dados[8] + "&kimo=" + dados[9] + "";
 
     Serial.print("Dados: ");
     Serial.println(httpRequestData);

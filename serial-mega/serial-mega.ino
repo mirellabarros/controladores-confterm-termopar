@@ -11,12 +11,12 @@ int lcdRows = 2;
 LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);
 
 // Determina os pinos e tipo dos sensores DHT
-#define DHTPIN1 9      // DHT TBS
-#define DHTPIN2 8      // DHT TGN
+#define DHTPIN1 9  // DHT TBS
+// #define DHTPIN2 8      // DHT TGN
 #define DHTTYPE DHT22  // Sensor tipo DHT 22
 
 DHT dht1(DHTPIN1, DHTTYPE);  // Define o sensor TBS
-DHT dht2(DHTPIN2, DHTTYPE);  // Define o sensor TGN
+// DHT dht2(DHTPIN2, DHTTYPE);  // Define o sensor TGN
 
 // Define os pinos do KIMO
 const int pino_KIMO = A8;
@@ -72,6 +72,13 @@ int thermo5D0 = 49;   // miso: laranja
 float tk5 = 0;
 MAX6675 thermocouple5(thermo5CLK, thermo5CS, thermo5D0);
 
+// Termopar 6 - Temperatura de globo negro (TGN) alterado de DHT22 -> Termopar
+int thermo6CLK = 39;  // sck: amarelo
+int thermo6CS = 41;   // so: verde
+int thermo6D0 = 43;   // miso: laranja
+float tgn = 0;
+MAX6675 thermocouple6(thermo6CLK, thermo6CS, thermo6D0);
+
 // Botão ===============================================
 const int buttonPin = 3;  // pushbutton habilita leitura = GND usa pullup interno
 // variables will change:
@@ -81,7 +88,7 @@ void setup() {
 
   pinMode(buttonPin, INPUT_PULLUP);
   pinMode(DHTPIN1, INPUT_PULLUP);
-  pinMode(DHTPIN2, INPUT_PULLUP);
+  // pinMode(DHTPIN2, INPUT_PULLUP);
 
   // Inicializa a porta serial 0
   Serial.begin(9600);
@@ -94,7 +101,7 @@ void setup() {
 
   // Inicializa os sensores DHT
   dht1.begin();
-  dht2.begin();
+  // dht2.begin();
 
   // Inicializa o LCD
   lcd.init();
@@ -114,7 +121,7 @@ void loop() {
   buttonState = digitalRead(buttonPin);
 
   if (buttonState == HIGH) {
-    
+
     // turn LED on:
     Serial.println("Chave = OFF");
 
@@ -133,7 +140,7 @@ void loop() {
     lcd.setCursor(0, 1);
     lcd.print("Exec. leituras");
 
-    publicar("99"); // envia o código de paridade
+    publicar("99");  // envia o código de paridade
     delay(1500);
 
     lcd.clear();
@@ -153,8 +160,8 @@ void loop() {
 
     ler_TBS();
     delay(1500);
-    // ler_TGN(); // temp globo negro ainda falta montar 14-04-23
-    // delay(1500);
+    ler_TGN();
+    delay(1500);
 
     lcd.clear();
     lcd.setCursor(0, 0);
@@ -164,14 +171,14 @@ void loop() {
 
     ler_KIMO();
     delay(1500);
-    
+
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Leituras OK");
-    
+
     delay(10000);
   }
-  
+
   delay(10000);
 
   if (Serial3.available() > 0) {
@@ -197,48 +204,92 @@ void ler_termopares() {
   Serial.println("------------------------------------------------");
 
   // Termopar 1
+  
+  float total_tk1 = 0;
+  float total_tk2 = 0;
+  float total_tk3 = 0;
+  float total_tk4 = 0;
+  float total_tk5 = 0;
+  
+  for (int i = 0; i < 5; i++) {
+    tk1 = thermocouple1.readCelsius();
+    total_tk1 += tk1;
+    tk2 = thermocouple2.readCelsius();
+    total_tk2 += tk2;
+    tk3 = thermocouple3.readCelsius();
+    total_tk3 += tk3;
+    tk4 = thermocouple4.readCelsius();
+    total_tk4 += tk4;
+    tk5 = thermocouple5.readCelsius();
+    total_tk5 += tk5;
+    delay(200);
+  }
+
   Serial.print("S1 (C) = ");
-  tk1 = thermocouple1.readCelsius();
-  delay(300);
-  publicar(String(tk1));
-  Serial.println(tk1);
+  float media_tk1 = total_tk1 / 5;
+  publicar(String(media_tk1));
+  Serial.println(media_tk1);
   delay(1200);
 
-  // Termopar 2
   Serial.print("S2 (C) = ");
-  tk2 = thermocouple2.readCelsius();
-  delay(300);
-  publicar(String(tk2));
-  Serial.println(tk2);
+  float media_tk2 = total_tk2 / 5;
+  publicar(String(media_tk2));
+  Serial.println(media_tk2);
   delay(1200);
 
-  // Sensor 3
   Serial.print("S3 (C) = ");
-  tk3 = thermocouple3.readCelsius();
-  delay(300);
-  publicar(String(tk3));
-  Serial.println(tk3);
+  float media_tk3 = total_tk3 / 5;
+  publicar(String(media_tk3));
+  Serial.println(media_tk3);
   delay(1200);
 
-  // Sensor 4
   Serial.print("S4 (C) = ");
-  tk4 = thermocouple4.readCelsius();
-  delay(300);
-  publicar(String(tk4));
-  Serial.println(tk4);
+  float media_tk4 = total_tk4 / 5;
+  publicar(String(media_tk4));
+  Serial.println(media_tk4);
   delay(1200);
 
-  // Sensor 5
   Serial.print("S5 (C) = ");
-  tk5 = thermocouple5.readCelsius();
-  delay(300);
-  publicar(String(tk5));
-  Serial.println(tk5);
+  float media_tk5 = total_tk5 / 5;
+  publicar(String(media_tk5));
+  Serial.println(media_tk5);
   delay(1200);
+
+  // // Termopar 2
+  // Serial.print("S2 (C) = ");
+  // tk2 = thermocouple2.readCelsius();
+  // delay(300);
+  // publicar(String(tk2));
+  // Serial.println(tk2);
+  // delay(1200);
+
+  // // Sensor 3
+  // Serial.print("S3 (C) = ");
+  // tk3 = thermocouple3.readCelsius();
+  // delay(300);
+  // publicar(String(tk3));
+  // Serial.println(tk3);
+  // delay(1200);
+
+  // // Sensor 4
+  // Serial.print("S4 (C) = ");
+  // tk4 = thermocouple4.readCelsius();
+  // delay(300);
+  // publicar(String(tk4));
+  // Serial.println(tk4);
+  // delay(1200);
+
+  // // Sensor 5
+  // Serial.print("S5 (C) = ");
+  // tk5 = thermocouple5.readCelsius();
+  // delay(300);
+  // publicar(String(tk5));
+  // Serial.println(tk5);
+  // delay(1200);
 
   // Calcula a média
-  Serial.print("Temp. Média Termopar = ");
-  float temp_media_TK = (tk1 + tk2 + tk3 + tk4 + tk5) / 5;
+  Serial.print("Média Termopar = ");
+  float temp_media_TK = (media_tk1 + media_tk2 + media_tk3 + media_tk4 + media_tk5) / 5;
   publicar(String(temp_media_TK));
   Serial.println(temp_media_TK);
 
@@ -285,39 +336,30 @@ void ler_TBS() {
 
 void ler_TGN() {
 
-  // TGN - DHT2
+  // TGN - Termopar Tk
   Serial.println("------------------------------------------------");
-  Serial.println("      Leitura do Sensor DHT22: Globo Negro      ");
+  Serial.println("     Leitura do Sensor Termopar: Globo Negro    ");
   Serial.println("------------------------------------------------");
 
-  // DHT22 sampling rate is 0.5HZ.
-  delay(2000);
+  tgn = thermocouple6.readCelsius();
+  delay(300);
+  Serial.print("TGN (C) = ");
+  publicar(String(tgn));
+  Serial.println(tgn);
+  delay(1500);
 
-  float t2 = dht2.readTemperature();
-  float h2 = dht2.readHumidity();
+  // Verifica se o dado do sensor é válido
+  // if (isnan(tgn)) {
 
-  // Verifica se os dados dos sensores são válidos
-  if (isnan(t2) || isnan(h2)) {
+  //   Serial.println("Erro de leitura do sensor TGN");
+  //   tgn = 0;  // Envia o valor zero para t2
+  //   publicar(String(tgn));
+  //   delay(1500);
 
-    Serial.println("Erro de leitura do sensor TGN");
-    t2 = 0;  // Envia o valor zero para t2
-    h2 = 0;  // Envia o valor zero para h2
-    publicar(String(t2));
-    delay(1500);
-    publicar(String(h2));
-    delay(1500);
+  // } else {
 
-  } else {
 
-    Serial.print("TGN (C) = ");
-    Serial.println(t2, 1);
-    Serial.print("Umidade TGN (%) = ");
-    Serial.print(h2, 1);
-    publicar(String(t2));
-    delay(1500);
-    publicar(String(h2));
-    delay(1500);
-  }
+  // }
 
   Serial.println("\t");
 }
@@ -355,94 +397,94 @@ void ler_KIMO() {
 // MB função wind_WS() não revisada (17/04/2023 - MB)
 
 void wind_WS() {
-                 // selecionando coluna 0 e linha 0
-    // Print a message to the LCD.
-   // lcd.display();
-   delay(300);
+  // selecionando coluna 0 e linha 0
+  // Print a message to the LCD.
+  // lcd.display();
+  delay(300);
 
-     for (int j=0; j <= 4; j++){
-    
-    for (int i=0; i <= 99; i++){   //  cria laço de 100 voltas
-         
-    ///////       read wind   ////////////
-     
-    int valorA0 = analogRead(vento_WS);
+  for (int j = 0; j <= 4; j++) {
 
-    windMPH =  pow((((float)valorA0 - 264.0) / 85.6814), 3.36814);
-    // pow(X,Y) eleva X ((float)valorA0 - 264.0) / 85.6814))por Y (3.36814)
-    
-   // Here’s the equation derived from the regression for the Rev P wind sensor.
-   // WS_MPH = (((Volts – ZeroWind_V) / (3.038517 * (Temp_C ^ 0.115157 ))) / 0.087288 ) ^ 3.009364
-    
-    //You’ll need to code this up in C. Most people will be using microcontrollers 
-    //with ADC’s so you’ll need to input the reference voltage of your microcontroller
-    //and the bit depth of the ADC. For example with an Arduino UNO or Mega 
-    //running at 5.0 volts, which have a 10-bit ADC, you would substitute 
-    //the following expression for the term “Volts”  “(float)analogRead(A0) * 5.0 / 1023.0”
+    for (int i = 0; i <= 99; i++) {  //  cria laço de 100 voltas
 
-    
-    windMPS = (windMPH/2.237); //3.95; // conversão milha/h para m/s
-   
-    valor_atual = valor_atual + windMPS ; //valor_atual;
-    //valor_atual = valor_atual + valor_ant;
-    
-    //valor_ant = valor_atual;
-    //Serial.print("Valor total = "); Serial.println(windMPS);
-    delay(2);
+      ///////       read wind   ////////////
+
+      int valorA0 = analogRead(vento_WS);
+
+      windMPH = pow((((float)valorA0 - 264.0) / 85.6814), 3.36814);
+      // pow(X,Y) eleva X ((float)valorA0 - 264.0) / 85.6814))por Y (3.36814)
+
+      // Here’s the equation derived from the regression for the Rev P wind sensor.
+      // WS_MPH = (((Volts – ZeroWind_V) / (3.038517 * (Temp_C ^ 0.115157 ))) / 0.087288 ) ^ 3.009364
+
+      //You’ll need to code this up in C. Most people will be using microcontrollers
+      //with ADC’s so you’ll need to input the reference voltage of your microcontroller
+      //and the bit depth of the ADC. For example with an Arduino UNO or Mega
+      //running at 5.0 volts, which have a 10-bit ADC, you would substitute
+      //the following expression for the term “Volts”  “(float)analogRead(A0) * 5.0 / 1023.0”
+
+
+      windMPS = (windMPH / 2.237);  //3.95; // conversão milha/h para m/s
+
+      valor_atual = valor_atual + windMPS;  //valor_atual;
+      //valor_atual = valor_atual + valor_ant;
+
+      //valor_ant = valor_atual;
+      //Serial.print("Valor total = "); Serial.println(windMPS);
+      delay(2);
     }
 
-    valorfinal= valor_atual / 100;
-    valor_atual=0;  
-    
+    valorfinal = valor_atual / 100;
+    valor_atual = 0;
   }
-    
-     valorfinal22 = valorfinal/5;   // faz 100 leituras e depois repete mais 5x = 500 leituras!!!
-           
-    // wind formula derived from a wind tunnel data, annemometer and some fancy Excel regressions
-    // this scalin doesn't have any temperature correction in it yet
-   // float windMPH =  pow((((float)windADunits - 264.0) / 8.56814), 3.36814);
-    //float windMPS = windMPH/2.237; // conversão milha/h para m/s
-    
-    Serial.print("Valor Medio = "); Serial.print(valorfinal22); 
-    //Serial.print(" MPH\t");    
-    Serial.println(" MPS\t");  
+
+  valorfinal22 = valorfinal / 5;  // faz 100 leituras e depois repete mais 5x = 500 leituras!!!
+
+  // wind formula derived from a wind tunnel data, annemometer and some fancy Excel regressions
+  // this scalin doesn't have any temperature correction in it yet
+  // float windMPH =  pow((((float)windADunits - 264.0) / 8.56814), 3.36814);
+  //float windMPS = windMPH/2.237; // conversão milha/h para m/s
+
+  Serial.print("Valor Medio = ");
+  Serial.print(valorfinal22);
+  //Serial.print(" MPH\t");
+  Serial.println(" MPS\t");
 }
 
 // ***** Temperatura do Wind Sensor Modern Device *****
 // MB função temp_wind_WS() não revisada (17/04/2023 - MB)
 
 void temp_wind_WS() {
-   //lcd.begin(16, 2);
-   delay(300);
-  // lcd.setCursor(0, 0); 
-    // escrever no LCD a velocidade do vento
-   // lcd.print("Vento=");
-  //  lcd.setCursor(8, 0); 
+  //lcd.begin(16, 2);
+  delay(300);
+  // lcd.setCursor(0, 0);
+  // escrever no LCD a velocidade do vento
+  // lcd.print("Vento=");
+  //  lcd.setCursor(8, 0);
   //  lcd.print(valorfinal22);
-  //  lcd.setCursor(13, 0); 
+  //  lcd.setCursor(13, 0);
   //  lcd.print("m/s");
-    
-           // temp routine and print raw and temp C
-          //analogReadResolution(10); 
- int tempRawAD = analogRead(temp_WS);  
-           // Serial.print("RT ");    // print raw A/D for debug
-         // Serial.print(tempRawAD);
-         // Serial.print("\t");
-    
-         // convert to volts then use formula from datatsheet 
-    // Vout = ( TempC * .0195 ) + .400
-    // tempC = (Vout - V0c) / TC   see the MCP9701 datasheet for V0c and TC
-    
-    float tempC = ((((float)tempRawAD * 5.0) / 1024.0) - 0.400) / .0195; 
-    Serial.print(tempC);
-    Serial.println(" C");
-    delay(150);
 
-   // delay(100);
-   // lcd.setCursor(0, 1); 
-   // lcd.print("Temp=");
-   // lcd.setCursor(8, 1); 
-   // lcd.print(tempC);
-   // lcd.setCursor(13, 1); 
-   // lcd.print(" C");
+  // temp routine and print raw and temp C
+  //analogReadResolution(10);
+  int tempRawAD = analogRead(temp_WS);
+  // Serial.print("RT ");    // print raw A/D for debug
+  // Serial.print(tempRawAD);
+  // Serial.print("\t");
+
+  // convert to volts then use formula from datatsheet
+  // Vout = ( TempC * .0195 ) + .400
+  // tempC = (Vout - V0c) / TC   see the MCP9701 datasheet for V0c and TC
+
+  float tempC = ((((float)tempRawAD * 5.0) / 1024.0) - 0.400) / .0195;
+  Serial.print(tempC);
+  Serial.println(" C");
+  delay(150);
+
+  // delay(100);
+  // lcd.setCursor(0, 1);
+  // lcd.print("Temp=");
+  // lcd.setCursor(8, 1);
+  // lcd.print(tempC);
+  // lcd.setCursor(13, 1);
+  // lcd.print(" C");
 }
