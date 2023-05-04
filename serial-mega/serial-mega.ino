@@ -82,8 +82,6 @@ float leituras_tk3[index];
 float leituras_tk4[index];
 float leituras_tk5[index];
 
-int leitura_index = 0;
-
 // // Termopar 6 - Temperatura de globo negro (TGN) alterado de DHT22 -> Termopar
 // int thermo6CLK = 23;  // sck: laranja
 // int thermo6CS = 25;   // cs: marrom
@@ -162,6 +160,7 @@ void loop() {
     // lcd.print("Termopares");
 
     ler_termopares();
+
     index_atual++;
 
     if (index_atual >= index) {
@@ -237,59 +236,62 @@ void ler_termopares() {
   float total_tk5 = 0;
 
   for (int i = 0; i < 5; i++) {
-    tk1 = thermocouple1.readCelsius();
-    total_tk1 += tk1;
-    tk2 = thermocouple2.readCelsius();
-    total_tk2 += tk2;
-    tk3 = thermocouple3.readCelsius();
-    total_tk3 += tk3;
-    tk4 = thermocouple4.readCelsius();
-    total_tk4 += tk4;
-    tk5 = thermocouple5.readCelsius();
-    total_tk5 += tk5;
+    float valor_tk1 = thermocouple1.readCelsius();
+    total_tk1 += valor_tk1;
+    float valor_tk2 = thermocouple2.readCelsius();
+    total_tk2 += valor_tk2;
+    float valor_tk3 = thermocouple3.readCelsius();
+    total_tk3 += valor_tk3;
+    float valor_tk4 = thermocouple4.readCelsius();
+    total_tk4 += valor_tk4;
+    float valor_tk5 = thermocouple5.readCelsius();
+    total_tk5 += valor_tk5;
     delay(250);
   }
 
   Serial.print("MM Tk1 (C) = ");
   float media_tk1 = (total_tk1 / 5) + 0.6;
   float mm_tk1 = calcula_mm_tk(leituras_tk1, media_tk1);
-  leituras_tk1[index_atual] = 10;
-  publicar(String(mm_tk1));
   Serial.println(mm_tk1);
-  Serial.print("Leitura do sensor Tk1: ");
+  Serial.print("Leitura atual Tk1: ");
   Serial.println(media_tk1);
+  publicar(String(mm_tk1));
   delay(1200);
 
   Serial.print("MM Tk2 (C) = ");
   float media_tk2 = total_tk2 / 5;
   float mm_tk2 = calcula_mm_tk(leituras_tk2, media_tk2);
-  leituras_tk2[index_atual] = media_tk2;
-  publicar(String(mm_tk2));
   Serial.println(mm_tk2);
+  Serial.print("Leitura atual Tk2: ");
+  Serial.println(media_tk2);
+  publicar(String(mm_tk2));
   delay(1200);
 
   Serial.print("MM Tk3 (C) = ");
   float media_tk3 = total_tk3 / 5;
   float mm_tk3 = calcula_mm_tk(leituras_tk3, media_tk3);
-  leituras_tk3[index_atual] = media_tk3;
-  publicar(String(mm_tk3));
   Serial.println(mm_tk3);
+  Serial.print("Leitura atual Tk3: ");
+  Serial.println(media_tk3);
+  publicar(String(mm_tk3));
   delay(1200);
 
   Serial.print("MM tk4 (C) = ");
   float media_tk4 = total_tk4 / 5;
   float mm_tk4 = calcula_mm_tk(leituras_tk4, media_tk4);
-  leituras_tk4[index_atual] = media_tk4;
-  publicar(String(mm_tk4));
   Serial.println(mm_tk4);
+  Serial.print("Leitura atual Tk4: ");
+  Serial.println(media_tk4);
+  publicar(String(mm_tk4));
   delay(1200);
 
   Serial.print("MM tk5 (C) = ");
   float media_tk5 = total_tk5 / 5;
   float mm_tk5 = calcula_mm_tk(leituras_tk5, media_tk5);
-  leituras_tk5[index_atual] = media_tk5;
-  publicar(String(mm_tk5));
   Serial.println(mm_tk5);
+  Serial.print("Leitura atual Tk5: ");
+  Serial.println(media_tk5);
+  publicar(String(mm_tk5));
   delay(1200);
 
   // Calcula a média
@@ -305,7 +307,7 @@ void ler_termopares() {
   Serial.println("\t");
 }
 
-float calcula_mm_tk(float vetor[index], float valor_sensor) {
+float calcula_mm_tk(float vetor[index], float dado) {
 
   float total = 0;
   float mm = 0;
@@ -317,7 +319,10 @@ float calcula_mm_tk(float vetor[index], float valor_sensor) {
 
   mm = total / index;
 
+  vetor[index_atual] = dado;
+
   return mm;
+
 }
 
 void ler_TBS() {
