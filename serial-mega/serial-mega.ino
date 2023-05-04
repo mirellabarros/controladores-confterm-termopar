@@ -72,12 +72,24 @@ int thermo5D0 = 49;   // miso: laranja
 float tk5 = 0;
 MAX6675 thermocouple5(thermo5CLK, thermo5CS, thermo5D0);
 
-// Termopar 6 - Temperatura de globo negro (TGN) alterado de DHT22 -> Termopar
-int thermo6CLK = 39;  // sck: amarelo
-int thermo6CS = 41;   // so: verde
-int thermo6D0 = 43;   // miso: laranja
-float tgn = 0;
-MAX6675 thermocouple6(thermo6CLK, thermo6CS, thermo6D0);
+// Vetores da média móvel
+const int index = 3;
+int index_atual = 0;
+
+float leituras_tk1[index];
+float leituras_tk2[index];
+float leituras_tk3[index];
+float leituras_tk4[index];
+float leituras_tk5[index];
+
+int leitura_index = 0;
+
+// // Termopar 6 - Temperatura de globo negro (TGN) alterado de DHT22 -> Termopar
+// int thermo6CLK = 23;  // sck: laranja
+// int thermo6CS = 25;   // cs: marrom
+// int thermo6D0 = 27;   // miso: verde
+// float tgn = 0;
+// MAX6675 thermocouple6(thermo6CLK, thermo6CS, thermo6D0);
 
 // Botão ===============================================
 const int buttonPin = 3;  // pushbutton habilita leitura = GND usa pullup interno
@@ -104,15 +116,15 @@ void setup() {
   // dht2.begin();
 
   // Inicializa o LCD
-  lcd.init();
-  lcd.backlight();              // ativa a iluminação
-  lcd.setCursor(0, 0);          // posiciona o cursor em 0,0
-  lcd.print("Proj Conf Term");  // escreve mensagem
-  delay(1000);
+  // lcd.init();
+  // lcd.backlight();              // ativa a iluminação
+  // lcd.setCursor(0, 0);          // posiciona o cursor em 0,0
+  // lcd.print("Proj Conf Term");  // escreve mensagem
+  // delay(1000);
 
-  lcd.setCursor(0, 1);           // posiciona o cursor em 0,1
-  lcd.print("Temp Vento Umid");  // escreve mensagem
-  delay(3000);
+  // lcd.setCursor(0, 1);           // posiciona o cursor em 0,1
+  // lcd.print("Temp Vento Umid");  // escreve mensagem
+  // delay(3000);
 }
 
 void loop() {
@@ -125,56 +137,70 @@ void loop() {
     // turn LED on:
     Serial.println("Chave = OFF");
 
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Proj Conf Term");
-    lcd.setCursor(0, 1);
-    lcd.print("Chave = OFF");
+    // lcd.clear();
+    // lcd.setCursor(0, 0);
+    // lcd.print("Proj Conf Term");
+    // lcd.setCursor(0, 1);
+    // lcd.print("Chave = OFF");
     delay(100);
 
   } else {
 
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Temp Vento Umid");  // escreve mensagem
-    lcd.setCursor(0, 1);
-    lcd.print("Exec. leituras");
+    // lcd.clear();
+    // lcd.setCursor(0, 0);
+    // lcd.print("Temp Vento Umid");  // escreve mensagem
+    // lcd.setCursor(0, 1);
+    // lcd.print("Exec. leituras");
 
     publicar("99");  // envia o código de paridade
     delay(1500);
 
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Exec. leituras");
-    lcd.setCursor(0, 1);
-    lcd.print("Termopares");
+    // lcd.clear();
+    // lcd.setCursor(0, 0);
+    // lcd.print("Exec. leituras");
+    // lcd.setCursor(0, 1);
+    // lcd.print("Termopares");
 
     ler_termopares();
+    index_atual++;
+
+    if (index_atual >= index) {
+      index_atual = 0;
+    }
+    
     delay(1500);
 
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Exec. leituras");
-    lcd.setCursor(0, 1);
-    lcd.print("Sensor TBS");
+    // lcd.clear();
+    // lcd.setCursor(0, 0);
+    // lcd.print("Exec. leituras");
+    // lcd.setCursor(0, 1);
+    // lcd.print("Sensor TBS");
 
     ler_TBS();
     delay(1500);
-    ler_TGN();
+
+    // lcd.clear();
+    // lcd.setCursor(0, 0);
+    // lcd.print("Exec. leituras");
+    // lcd.setCursor(0, 1);
+    // lcd.print("Sensor TGN");
+
+    // ler_TGN();
+    publicar(String(0.00));
     delay(1500);
 
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Exec. leituras");
-    lcd.setCursor(0, 1);
-    lcd.print("Sensor Kimo");
+    // lcd.clear();
+    // lcd.setCursor(0, 0);
+    // lcd.print("Exec. leituras");
+    // lcd.setCursor(0, 1);
+    // lcd.print("Sensor Kimo");
 
     ler_KIMO();
     delay(1500);
 
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Leituras OK");
+    // lcd.clear();
+    // lcd.setCursor(0, 0);
+    // lcd.print("Leituras OK");
 
     delay(10000);
   }
@@ -204,13 +230,12 @@ void ler_termopares() {
   Serial.println("------------------------------------------------");
 
   // Termopar 1
-  
   float total_tk1 = 0;
   float total_tk2 = 0;
   float total_tk3 = 0;
   float total_tk4 = 0;
   float total_tk5 = 0;
-  
+
   for (int i = 0; i < 5; i++) {
     tk1 = thermocouple1.readCelsius();
     total_tk1 += tk1;
@@ -222,78 +247,77 @@ void ler_termopares() {
     total_tk4 += tk4;
     tk5 = thermocouple5.readCelsius();
     total_tk5 += tk5;
-    delay(200);
+    delay(250);
   }
 
-  Serial.print("S1 (C) = ");
-  float media_tk1 = total_tk1 / 5;
-  publicar(String(media_tk1));
+  Serial.print("MM Tk1 (C) = ");
+  float media_tk1 = (total_tk1 / 5) + 0.6;
+  float mm_tk1 = calcula_mm_tk(leituras_tk1, media_tk1);
+  leituras_tk1[index_atual] = 10;
+  publicar(String(mm_tk1));
+  Serial.println(mm_tk1);
+  Serial.print("Leitura do sensor Tk1: ");
   Serial.println(media_tk1);
   delay(1200);
 
-  Serial.print("S2 (C) = ");
+  Serial.print("MM Tk2 (C) = ");
   float media_tk2 = total_tk2 / 5;
-  publicar(String(media_tk2));
-  Serial.println(media_tk2);
+  float mm_tk2 = calcula_mm_tk(leituras_tk2, media_tk2);
+  leituras_tk2[index_atual] = media_tk2;
+  publicar(String(mm_tk2));
+  Serial.println(mm_tk2);
   delay(1200);
 
-  Serial.print("S3 (C) = ");
+  Serial.print("MM Tk3 (C) = ");
   float media_tk3 = total_tk3 / 5;
-  publicar(String(media_tk3));
-  Serial.println(media_tk3);
+  float mm_tk3 = calcula_mm_tk(leituras_tk3, media_tk3);
+  leituras_tk3[index_atual] = media_tk3;
+  publicar(String(mm_tk3));
+  Serial.println(mm_tk3);
   delay(1200);
 
-  Serial.print("S4 (C) = ");
+  Serial.print("MM tk4 (C) = ");
   float media_tk4 = total_tk4 / 5;
-  publicar(String(media_tk4));
-  Serial.println(media_tk4);
+  float mm_tk4 = calcula_mm_tk(leituras_tk4, media_tk4);
+  leituras_tk4[index_atual] = media_tk4;
+  publicar(String(mm_tk4));
+  Serial.println(mm_tk4);
   delay(1200);
 
-  Serial.print("S5 (C) = ");
+  Serial.print("MM tk5 (C) = ");
   float media_tk5 = total_tk5 / 5;
-  publicar(String(media_tk5));
-  Serial.println(media_tk5);
+  float mm_tk5 = calcula_mm_tk(leituras_tk5, media_tk5);
+  leituras_tk5[index_atual] = media_tk5;
+  publicar(String(mm_tk5));
+  Serial.println(mm_tk5);
   delay(1200);
-
-  // // Termopar 2
-  // Serial.print("S2 (C) = ");
-  // tk2 = thermocouple2.readCelsius();
-  // delay(300);
-  // publicar(String(tk2));
-  // Serial.println(tk2);
-  // delay(1200);
-
-  // // Sensor 3
-  // Serial.print("S3 (C) = ");
-  // tk3 = thermocouple3.readCelsius();
-  // delay(300);
-  // publicar(String(tk3));
-  // Serial.println(tk3);
-  // delay(1200);
-
-  // // Sensor 4
-  // Serial.print("S4 (C) = ");
-  // tk4 = thermocouple4.readCelsius();
-  // delay(300);
-  // publicar(String(tk4));
-  // Serial.println(tk4);
-  // delay(1200);
-
-  // // Sensor 5
-  // Serial.print("S5 (C) = ");
-  // tk5 = thermocouple5.readCelsius();
-  // delay(300);
-  // publicar(String(tk5));
-  // Serial.println(tk5);
-  // delay(1200);
 
   // Calcula a média
+  Serial.println("\t");
   Serial.print("Média Termopar = ");
-  float temp_media_TK = (media_tk1 + media_tk2 + media_tk3 + media_tk4 + media_tk5) / 5;
-  publicar(String(temp_media_TK));
-  Serial.println(temp_media_TK);
+  float temp_mm_TK = (mm_tk1 + mm_tk2 + mm_tk3 + mm_tk4 + mm_tk5) / 5;
+  publicar(String(temp_mm_TK));
+  Serial.println(temp_mm_TK);
+
+  Serial.print("Index atual: ");
+  Serial.println(index_atual);
 
   Serial.println("\t");
+}
+
+float calcula_mm_tk(float vetor[index], float valor_sensor) {
+
+  float total = 0;
+  float mm = 0;
+
+  for (int i = 0; i < index; i++) {
+    total = total + vetor[i];
+    Serial.println(vetor[i]);
+  }
+
+  mm = total / index;
+
+  return mm;
 }
 
 void ler_TBS() {
@@ -334,35 +358,35 @@ void ler_TBS() {
   Serial.println("\t");
 }
 
-void ler_TGN() {
+// void ler_TGN() {
 
-  // TGN - Termopar Tk
-  Serial.println("------------------------------------------------");
-  Serial.println("     Leitura do Sensor Termopar: Globo Negro    ");
-  Serial.println("------------------------------------------------");
+//   // TGN - Termopar Tk
+//   Serial.println("------------------------------------------------");
+//   Serial.println("     Leitura do Sensor Termopar: Globo Negro    ");
+//   Serial.println("------------------------------------------------");
 
-  tgn = thermocouple6.readCelsius();
-  delay(300);
-  Serial.print("TGN (C) = ");
-  publicar(String(tgn));
-  Serial.println(tgn);
-  delay(1500);
+//   tgn = thermocouple6.readCelsius();
+//   delay(300);
+//   Serial.print("TGN (C) = ");
+//   publicar(String(tgn));
+//   Serial.println(tgn);
+//   delay(1500);
 
-  // Verifica se o dado do sensor é válido
-  // if (isnan(tgn)) {
+//   // Verifica se o dado do sensor é válido
+//   // if (isnan(tgn)) {
 
-  //   Serial.println("Erro de leitura do sensor TGN");
-  //   tgn = 0;  // Envia o valor zero para t2
-  //   publicar(String(tgn));
-  //   delay(1500);
+//   //   Serial.println("Erro de leitura do sensor TGN");
+//   //   tgn = 0;  // Envia o valor zero para t2
+//   //   publicar(String(tgn));
+//   //   delay(1500);
 
-  // } else {
+//   // } else {
 
 
-  // }
+//   // }
 
-  Serial.println("\t");
-}
+//   Serial.println("\t");
+// }
 
 void ler_KIMO() {
 
