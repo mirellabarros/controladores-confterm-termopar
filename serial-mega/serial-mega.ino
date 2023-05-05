@@ -73,7 +73,7 @@ float tk5 = 0;
 MAX6675 thermocouple5(thermo5CLK, thermo5CS, thermo5D0);
 
 // Vetores da média móvel
-const int index = 3;
+const int index = 5;
 int index_atual = 0;
 
 float leituras_tk1[index];
@@ -310,19 +310,15 @@ void ler_termopares() {
 float calcula_mm_tk(float vetor[index], float dado) {
 
   float total = 0;
-  float mm = 0;
 
   for (int i = 0; i < index; i++) {
-    total = total + vetor[i];
-    Serial.println(vetor[i]);
+    total += + vetor[i];
+    // Serial.println(vetor[i]);
   }
-
-  mm = total / index;
 
   vetor[index_atual] = dado;
 
-  return mm;
-
+  return total / index;
 }
 
 void ler_TBS() {
