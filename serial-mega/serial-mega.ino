@@ -250,7 +250,7 @@ void ler_termopares() {
   }
 
   Serial.print("MM Tk1 (C) = ");
-  float media_tk1 = (total_tk1 / 5) + 0.6;
+  float media_tk1 = (total_tk1 / 5) + 0.85;
   float mm_tk1 = calcula_mm_tk(leituras_tk1, media_tk1);
   Serial.println(mm_tk1);
   Serial.print("Leitura atual Tk1: ");
@@ -268,7 +268,7 @@ void ler_termopares() {
   delay(1200);
 
   Serial.print("MM Tk3 (C) = ");
-  float media_tk3 = total_tk3 / 5;
+  float media_tk3 = (total_tk3 / 5) - 0.2;
   float mm_tk3 = calcula_mm_tk(leituras_tk3, media_tk3);
   Serial.println(mm_tk3);
   Serial.print("Leitura atual Tk3: ");
@@ -277,7 +277,7 @@ void ler_termopares() {
   delay(1200);
 
   Serial.print("MM tk4 (C) = ");
-  float media_tk4 = total_tk4 / 5;
+  float media_tk4 = (total_tk4 / 5) - 0.3;
   float mm_tk4 = calcula_mm_tk(leituras_tk4, media_tk4);
   Serial.println(mm_tk4);
   Serial.print("Leitura atual Tk4: ");
