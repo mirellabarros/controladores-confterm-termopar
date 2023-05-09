@@ -73,7 +73,7 @@ float tk5 = 0;
 MAX6675 thermocouple5(thermo5CLK, thermo5CS, thermo5D0);
 
 // Vetores da média móvel
-const int index = 5;
+const int index = 10;
 int index_atual = 0;
 
 float leituras_tk1[index];
@@ -250,7 +250,7 @@ void ler_termopares() {
   }
 
   Serial.print("MM Tk1 (C) = ");
-  float media_tk1 = (total_tk1 / 5) + 0.85;
+  float media_tk1 = (total_tk1 / 5) + 0.4;
   float mm_tk1 = calcula_mm_tk(leituras_tk1, media_tk1);
   Serial.println(mm_tk1);
   Serial.print("Leitura atual Tk1: ");
@@ -259,7 +259,7 @@ void ler_termopares() {
   delay(1200);
 
   Serial.print("MM Tk2 (C) = ");
-  float media_tk2 = total_tk2 / 5;
+  float media_tk2 = (total_tk2 / 5) - 0.5;
   float mm_tk2 = calcula_mm_tk(leituras_tk2, media_tk2);
   Serial.println(mm_tk2);
   Serial.print("Leitura atual Tk2: ");
@@ -268,7 +268,7 @@ void ler_termopares() {
   delay(1200);
 
   Serial.print("MM Tk3 (C) = ");
-  float media_tk3 = (total_tk3 / 5) - 0.2;
+  float media_tk3 = (total_tk3 / 5) - 0.5;
   float mm_tk3 = calcula_mm_tk(leituras_tk3, media_tk3);
   Serial.println(mm_tk3);
   Serial.print("Leitura atual Tk3: ");
@@ -277,7 +277,7 @@ void ler_termopares() {
   delay(1200);
 
   Serial.print("MM tk4 (C) = ");
-  float media_tk4 = (total_tk4 / 5) - 0.3;
+  float media_tk4 = (total_tk4 / 5) - 0.6;
   float mm_tk4 = calcula_mm_tk(leituras_tk4, media_tk4);
   Serial.println(mm_tk4);
   Serial.print("Leitura atual Tk4: ");
@@ -286,7 +286,7 @@ void ler_termopares() {
   delay(1200);
 
   Serial.print("MM tk5 (C) = ");
-  float media_tk5 = total_tk5 / 5;
+  float media_tk5 = (total_tk5 / 5) - 0.65;
   float mm_tk5 = calcula_mm_tk(leituras_tk5, media_tk5);
   Serial.println(mm_tk5);
   Serial.print("Leitura atual Tk5: ");
