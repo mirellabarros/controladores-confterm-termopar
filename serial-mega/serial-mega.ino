@@ -142,6 +142,12 @@ void loop() {
     // lcd.print("Chave = OFF");
     delay(100);
 
+    memset(leituras_tk1, 0, sizeof(leituras_tk1));
+    memset(leituras_tk2, 0, sizeof(leituras_tk2));
+    memset(leituras_tk3, 0, sizeof(leituras_tk3));
+    memset(leituras_tk4, 0, sizeof(leituras_tk4));
+    memset(leituras_tk5, 0, sizeof(leituras_tk5));
+
   } else {
 
     // lcd.clear();
